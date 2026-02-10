@@ -1,83 +1,65 @@
 #include <vector>
-#include <fstream>
-#include <iostream>
-#include <chrono>
 #include <string>
+#include <iostream>
+#include <fstream>
+#include <chrono>
+#include <cmath>
 
 using namespace std;
 
-vector<long long> parser(string filename) {
-    ifstream File(filename);                                                                                    // Load File
-    string line;
-    vector<string> commasRemoved;                                                                               // Temp array for hosting removed commas
-    vector<long long> dashesRemoved;                                                                            // Output array
-       
-    while (getline(File, line)) {                                                                               // Loop to remove commas, push into temp array {xxxx-yyyy, wwww-zzzz, ... }
-        string temp = "";
-        for (int i = 0; i < line.size(); i++) {
-            if (line[i] == ',') {
-                if (!temp.empty()) {
-                    commasRemoved.push_back(temp);
-                }
-                temp = ""; 
-            }
-            else {
-                temp += line[i];
-            }
-        }
-        if (!temp.empty()) {
-            commasRemoved.push_back(temp);
-        }
-    }
-    File.close();
-    for (int i = 0; i < commasRemoved.size(); i++) {                                                            // Loop to remove dashes, push numbers into individual elements {xxxx, yyyy, wwww, zzzz, ... }
-        string numTemp = "";
-        for (int j = 0; j < commasRemoved[i].size(); j++) {
-            if (commasRemoved[i][j] == '-') {
-                if (!numTemp.empty()) {
-                    dashesRemoved.push_back(stoll(numTemp));
-                }
-                numTemp = "";
-            }
-            else if (isdigit(commasRemoved[i][j])) { 
-                numTemp += commasRemoved[i][j];
-            }
-        }
-        if (!numTemp.empty()) {
-            dashesRemoved.push_back(stoll(numTemp));
-        }
-    }
-    return dashesRemoved;
+vector<long long> parser(string file) {															// Function to separate text file into long long's in vector.
+	vector<long long> result;
+	fstream File(file);
+	string line;
+	while (getline(File, line)) {
+		string temp;
+		for (int i = 0; i < line.size(); i++) {													// Loop to ignore dashes and commas.
+			if ((line[i] == ',' || line[i] == '-') && temp != "") {
+				result.push_back(stoll(temp));
+				temp = "";
+			}
+			else if (i == (line.size() - 1)) {													// Catch last number in string.
+				temp += line[i];
+				result.push_back(stoll(temp));
+				temp = "";
+				break;
+			}
+			else {
+				temp += line[i];
+			}
+		}
+	}
+
+	return result;
 }
 
-long long validCheck(vector<long long> nums) {
-    long long count = 0;
-    for (long long i = 0; i < nums.size(); i += 2) {
-        for (long long j = nums[i]; j <= nums[i + 1]; j++) {                                                    // Odd indexes are beginning of range, even indexes are end of range.
-            string numString = to_string(j);
-            long long digits = numString.size();
-            if (digits % 2 != 0) {                                                                              // Skip if number of digits in an integer are odd.
-                continue;
-            }
-            string firstHalf = numString.substr(0, digits / 2);
-            string secondHalf = numString.substr(digits / 2);
-            if (firstHalf == secondHalf) {                                                                      // Compare first half of number with second half, if equal then number is invalid.
-                count += j;
-            }
-        }
-    }
-    return count;
- }
+long long validCheck(vector<long long> arr) {
+	long long sum = 0;
+	for (int i = 0; i < arr.size(); i += 2) {													// Set odd indexes to beginning of range, even indexes to end of range.
+		for (long long j = arr[i]; j <= arr[i + 1]; j++) {
+			int digits = floor(log10(j)) + 1;													// Mathematically find number of digits in a given number.
+			if (digits % 2 != 0) {																// Two repeats requires an even number of digits.
+				continue;
+			}
+			int divisor = pow(10, digits / 2);													// Find divisor to have half of digits be fractional.
+			int firstHalf = floor(j / divisor);
+			int lastHalf = j - (divisor * firstHalf);
+			if (firstHalf == lastHalf) {														
+				sum += j;
+			}
+		}
+	}
+	return sum;
+}
 
 int main() {
 
-    auto now = chrono::high_resolution_clock::now();
-	vector<long long> arr = parser("input.txt");
-    long long counter = validCheck(arr);
-    auto stop = chrono::high_resolution_clock::now();
-
-    cout << "Time: " << chrono::duration_cast<chrono::microseconds>(stop - now) << endl;                        // ~1.46s on AMD 7800X3D
-    cout << "Result: " << counter << endl;
+	auto begin = chrono::high_resolution_clock::now();
+	long long result = validCheck(parser("input.txt"));
+	cout << "Result: " << result << endl;
+	auto end = chrono::high_resolution_clock::now();
+	auto duration = chrono::duration_cast<chrono::microseconds>(end - begin);					
+	cout << "Time: " << duration << endl;														// Executes in ~60 milliseconds on AMD 7800X3D.
 
 	return 0;
 }
