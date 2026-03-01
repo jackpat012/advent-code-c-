@@ -59,7 +59,7 @@ int main() {
 	cout << "Result: " << result << endl;
 	auto end = chrono::high_resolution_clock::now();
 	auto duration = chrono::duration_cast<chrono::microseconds>(end - begin);					
-	cout << "Time: " << duration << endl;														// Executes in ~60 milliseconds on AMD 7800X3D.
+	cout << "Time: " << duration.count() << " microseconds" << endl;														// Executes in ~38 milliseconds on AMD 7800X3D Arch. 
 
 	return 0;
 }
