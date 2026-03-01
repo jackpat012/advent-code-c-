@@ -49,7 +49,7 @@ int main() {
 	auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
 
 	cout << "Result: " << result << endl;
-	cout << "Time taken: " << duration.count() << " microseconds." << endl;								// ~5900 microseconds on AMD 7800X3D.
+	cout << "Time taken: " << duration.count() << " microseconds." << endl;								// ~1.5 milliseconds on AMD 7800X3D Arch.
 
 	return 0;
 }
