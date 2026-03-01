@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <chrono>
 
 using namespace std;
 
@@ -28,8 +29,13 @@ int rotary(string filename) {
 }
 
 int main() {
+	auto start = chrono::high_resolution_clock::now();
+	int result = rotary("input.txt");
+	auto stop = chrono::high_resolution_clock::now();
+	auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
 
-	cout << rotary("input.txt");
+	cout << "Result: " << result << endl;
+	cout << "Time taken: " << duration.count() << " microseconds." << endl;	 // ~700 microseconds AMD 7800X3D Arch
 
 	return 0;
 }
